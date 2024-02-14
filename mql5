@@ -1,0 +1,64 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                           Big Figure Indicator MT5|
+//|                                     https://www.forexroboteasy.com|
+//|                                                       Forex Robot Easy Team|
+//+------------------------------------------------------------------+
+#property indicator_chart_window
+#property indicator_buffers 1
+#property indicator_color1 Red
+
+double BigFigureLevels[];
+int bufferHandle;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set the indicator buffer
+    SetIndexStyle(0, DRAW_LINE);
+    SetIndexBuffer(0, BigFigureLevels);
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Check if the current timeframe is within the specified range
+    if (Period() >= PERIOD_M1 && Period() <= PERIOD_H8)
+    {
+        // Calculate the number of significant digits for the current instrument
+        int digits = MarketInfo(Symbol(), MODE_DIGITS);
+        
+        // Calculate the significant round numbers
+        double roundNumber = NormalizeDouble(SymbolInfoDouble(Symbol(), SYMBOL_POINT) * 10, digits);
+        
+        // Mark the significant levels with horizontal lines
+        for (int i = 0; i < rates_total; i++)
+        {
+            if (MathMod(i, 100) == 0)
+            {
+                BigFigureLevels[i] = roundNumber;
+            }
+            else
+            {
+                BigFigureLevels[i] = 0;
+            }
+        }
+    }
+    
+    return(rates_total);
+}
